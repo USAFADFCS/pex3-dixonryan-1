@@ -13,7 +13,7 @@
 #include "byutr.h"
 #include "pagequeue.h"
 
-//compile code: gcc *.c -Werror -Wall -o ./a.out
+//compile code: gcc *.c -Werror -Wall -o ./pex3
 
 #define PROGRESS_INTERVAL 100000  // print status every N accesses
 
@@ -122,7 +122,7 @@ int main(int argc, char **argv) {
     //       printf("%d,%lu,%f\n", frameCount, faults[frameCount],
     //              (double)faults[frameCount] / (double)numAccesses);
 
-    for(int frameCount = 0; frameCount<maxFrames; frameCount++){
+    for(int frameCount = 1; frameCount<=maxFrames; frameCount++){
         printf("%d,%lu,%f\n", frameCount, faults[frameCount], (double)faults[frameCount] / (double)numAccesses);
     }
 

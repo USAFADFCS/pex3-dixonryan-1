@@ -34,20 +34,19 @@ PageQueue *pqInit(unsigned int maxSize) {
 long pqAccess(PageQueue *pq, unsigned long pageNum) {
 
     //baseline checks:
-    if(pq->size == 0 || pq->head == NULL || pq->tail == NULL){
+    /*if(pq->size == 0 || pq->head == NULL || pq->tail == NULL){
         return -1;
-    }
+    }*/
 
 
 
     // TODO: Search the queue for pageNum (suggest searching tail->head
     //       so you naturally count depth from the MRU end).
         PqNode* current = pq->tail;
-        for(long i = pq->size; i>= 0; i--){
-            if(current == NULL){
-                break;
-            }
 
+        long code = 0;
+
+        while(current!=NULL){
             // HIT path (page found at depth d):
             //   - Remove the node from its current position and re-insert
             //     it at the tail (most recently used).
@@ -55,6 +54,14 @@ long pqAccess(PageQueue *pq, unsigned long pageNum) {
             if(current->pageNum == pageNum){
                 PqNode* before = current->prev;
                 PqNode* after = current->next;
+
+                //have to account for if we hit on a head or tail before we move the node
+                if (current == pq->head){
+                    pq->head = after;
+                }
+                if (current == pq->tail){
+                    pq->tail = before;
+                }
 
                 if (before != NULL) {
                     before->next = after;
@@ -66,13 +73,21 @@ long pqAccess(PageQueue *pq, unsigned long pageNum) {
                     after->prev = before;
                 }
 
+                //if current is already at the tail, no need to bother with rest of stuff
+                if (current == pq->tail) {
+                    return code;
+                }
+
+                current->prev = pq->tail;
+                current->next = NULL;
 
                 pq->tail->next = current;
                 pq->tail = current;
 
-                return i;
+                return code;
             }
             else{
+                code++;
                 current = current->prev;
             }
         }
@@ -90,7 +105,8 @@ long pqAccess(PageQueue *pq, unsigned long pageNum) {
 
         //pq is null        
         if (pq->tail == NULL) {
-            pq->head = pq->tail = newNode;
+            pq->head = newNode;
+            pq->tail = newNode;
         }
         else{
             pq->tail->next = newNode;
@@ -98,15 +114,20 @@ long pqAccess(PageQueue *pq, unsigned long pageNum) {
         }
         pq->size++;
 
+        //eviction
         if(pq->size > pq->maxSize){
             PqNode* oldHead = pq->head;
-            pq->head->next->prev = NULL;
-            pq->head = pq->head->next;
+            pq->head = oldHead->next;
 
+            if (pq->head != NULL) {
+                pq->head->prev = NULL;
+            } else {
+                pq->tail = NULL;
+            }
+
+            pq->size--;
             free(oldHead);
         }
-
-        pq->tail = newNode;
             
     return -1;
 }
@@ -118,12 +139,11 @@ void pqFree(PageQueue *pq) {
     // TODO: Walk from head to tail, free each node, then free
     //       the PageQueue struct itself.
     PqNode* current = pq->head;
-    PqNode* next = current->next;
 
-    for(int i = 0; i<pq->size; i++){
+    while (current != NULL) {
+        PqNode* next = current->next;
         free(current);
         current = next;
-        next = current->next;
     }
 
     free(pq);
