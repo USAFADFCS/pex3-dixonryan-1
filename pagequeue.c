@@ -63,12 +63,14 @@ long pqAccess(PageQueue *pq, unsigned long pageNum) {
                     pq->tail = before;
                 }
 
+                //normal situation
                 if (before != NULL) {
                     before->next = after;
                 } else {
                     pq->head = after;   // current was head
                 }
 
+                //normal situation
                 if (after != NULL) {
                     after->prev = before;
                 }
@@ -78,6 +80,7 @@ long pqAccess(PageQueue *pq, unsigned long pageNum) {
                     return code;
                 }
 
+                //append to tail
                 current->prev = pq->tail;
                 current->next = NULL;
 
@@ -87,6 +90,7 @@ long pqAccess(PageQueue *pq, unsigned long pageNum) {
                 return code;
             }
             else{
+                //keep searching
                 code++;
                 current = current->prev;
             }
@@ -98,6 +102,7 @@ long pqAccess(PageQueue *pq, unsigned long pageNum) {
     //   - If size now exceeds maxSize, evict the head node (free it).
     //   - Return -1.
 
+        //new malloc
         PqNode* newNode = malloc(sizeof(PqNode));
         newNode->pageNum = pageNum;
         newNode->prev = pq->tail;
@@ -109,9 +114,11 @@ long pqAccess(PageQueue *pq, unsigned long pageNum) {
             pq->tail = newNode;
         }
         else{
+            //not null, set ot tail
             pq->tail->next = newNode;
             pq->tail = newNode;
         }
+        //increment pq size
         pq->size++;
 
         //eviction
@@ -124,7 +131,7 @@ long pqAccess(PageQueue *pq, unsigned long pageNum) {
             } else {
                 pq->tail = NULL;
             }
-
+            //decrement and free
             pq->size--;
             free(oldHead);
         }
@@ -140,12 +147,14 @@ void pqFree(PageQueue *pq) {
     //       the PageQueue struct itself.
     PqNode* current = pq->head;
 
+    //keep freeing until list is empty; size don't matter because list is gonna be freed
     while (current != NULL) {
         PqNode* next = current->next;
         free(current);
         current = next;
     }
 
+    //free list
     free(pq);
 
 }

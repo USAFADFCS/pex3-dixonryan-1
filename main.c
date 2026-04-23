@@ -132,6 +132,7 @@ int main(int argc, char **argv) {
     free(pageQ);
     free(faults);
 
-
+    fclose(ifp);
+    
     return 0;
 }
