@@ -18,7 +18,14 @@
 PageQueue *pqInit(unsigned int maxSize) {
     // TODO: malloc a PageQueue, set head and tail to NULL,
     //       size to 0, maxSize to maxSize, and return the pointer
-    return NULL;
+    PageQueue* newQ = malloc(sizeof(PageQueue));
+
+    newQ->head = NULL;
+    newQ->tail = NULL;
+    newQ->size = 0;
+    newQ->maxSize = maxSize;
+
+    return newQ;
 }
 
 /**
@@ -27,16 +34,42 @@ PageQueue *pqInit(unsigned int maxSize) {
 long pqAccess(PageQueue *pq, unsigned long pageNum) {
     // TODO: Search the queue for pageNum (suggest searching tail->head
     //       so you naturally count depth from the MRU end).
-    //
-    // HIT path (page found at depth d):
-    //   - Remove the node from its current position and re-insert
-    //     it at the tail (most recently used).
-    //   - Return d.
+        PqNode* current = pq->tail;
+        for(long i = pq->size; i>= 0; i--){
+
+            // HIT path (page found at depth d):
+            //   - Remove the node from its current position and re-insert
+            //     it at the tail (most recently used).
+            //   - Return d.
+            if(current->pageNum == pageNum){
+                PqNode* before = current->prev;
+                PqNode* after = current->next;
+
+                before->next = after;
+
+                pq->tail->next = current;
+                pq->tail = current;
+
+                return i;
+            }
+            else{
+                current = current->prev;
+            }
+        }
+
     //
     // MISS path (page not found):
     //   - Allocate a new node for pageNum and insert it at the tail.
     //   - If size now exceeds maxSize, evict the head node (free it).
     //   - Return -1.
+
+        PqNode* newNode = malloc(sizeof(PqNode));
+        newNode->pageNum = pageNum;
+        newNode->prev = pq->tail;
+        newNode->next = NULL;
+
+        pq->tail = newNode;
+            
     return -1;
 }
 
@@ -46,6 +79,17 @@ long pqAccess(PageQueue *pq, unsigned long pageNum) {
 void pqFree(PageQueue *pq) {
     // TODO: Walk from head to tail, free each node, then free
     //       the PageQueue struct itself.
+    PqNode* current = pq->head;
+    PqNode* next = current->next;
+
+    for(int i = 0; i<pq->size; i++){
+        free(current);
+        current = next;
+        next = current->next;
+    }
+
+    free(pq);
+
 }
 
 /**

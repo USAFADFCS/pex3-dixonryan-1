@@ -52,6 +52,7 @@ typedef struct BYUADDRESSTRACE {
 use this function on tr.addr and tr.time.  Just replace references to
 tr.addr   with   swap_endian(tr.addr)   */
 
+/*
 unsigned long swap_endian(unsigned long num) {
     return (((num << 24) & 0xff000000) | ((num << 8) & 0x00ff0000) |
             ((num >> 8) & 0x0000ff00) | ((num >> 24) & 0x000000ff));
@@ -71,6 +72,7 @@ int is_big_endian() {
         return (0);
     }
 }
+    */
 
 #endif
 

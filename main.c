@@ -13,6 +13,8 @@
 #include "byutr.h"
 #include "pagequeue.h"
 
+//compile code: gcc *.c -Werror -Wall -o ./a.out
+
 #define PROGRESS_INTERVAL 100000  // print status every N accesses
 
 int main(int argc, char **argv) {
@@ -72,6 +74,9 @@ int main(int argc, char **argv) {
     //       total number of page faults that occur when f frames are
     //       available.  Use calloc so all entries start at zero.
 
+    PageQueue* pageQ = pqInit(maxFrames); 
+    long *faults = calloc(maxFrames + 1, sizeof(long));
+
     // Process each memory access from the trace file
     while (!feof(ifp)) {
         fread(&traceRecord, sizeof(p2AddrTr), 1, ifp);
@@ -94,6 +99,10 @@ int main(int argc, char **argv) {
         //
         //       Update faults[] accordingly.
 
+        long accessCode = pqAccess(pageQ, pageNum);
+        if(accessCode == -1){
+            faults[pageNum] = -1; 
+        }
     }
 
     fprintf(stderr, "\n%lu total accesses processed\n", numAccesses);
@@ -106,8 +115,16 @@ int main(int argc, char **argv) {
     //       printf("%d,%lu,%f\n", frameCount, faults[frameCount],
     //              (double)faults[frameCount] / (double)numAccesses);
 
+    for(int frameCount = 0; frameCount<maxFrames; frameCount++){
+        printf("%d,%lu,%f\n", frameCount, faults[frameCount], (double)faults[frameCount] / (double)numAccesses);
+    }
+
     // TODO: Free your PageQueue and the faults[] array,
     //       then close the file.
+
+    free(pageQ);
+    free(faults);
+
 
     return 0;
 }
