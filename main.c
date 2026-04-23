@@ -101,7 +101,14 @@ int main(int argc, char **argv) {
 
         long accessCode = pqAccess(pageQ, pageNum);
         if(accessCode == -1){
-            faults[pageNum] = -1; 
+            for(int i = 1; i<=maxFrames; i++){
+                faults[i] ++;
+            }
+        }
+        else if(accessCode >= 0){
+            for(int i = 1; i<=accessCode; i++){
+                faults[i] ++;
+            }
         }
     }
 

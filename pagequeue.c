@@ -32,10 +32,21 @@ PageQueue *pqInit(unsigned int maxSize) {
  * @brief Access a page in the queue (simulates a memory reference)
  */
 long pqAccess(PageQueue *pq, unsigned long pageNum) {
+
+    //baseline checks:
+    if(pq->size == 0 || pq->head == NULL || pq->tail == NULL){
+        return -1;
+    }
+
+
+
     // TODO: Search the queue for pageNum (suggest searching tail->head
     //       so you naturally count depth from the MRU end).
         PqNode* current = pq->tail;
         for(long i = pq->size; i>= 0; i--){
+            if(current == NULL){
+                break;
+            }
 
             // HIT path (page found at depth d):
             //   - Remove the node from its current position and re-insert
@@ -45,7 +56,16 @@ long pqAccess(PageQueue *pq, unsigned long pageNum) {
                 PqNode* before = current->prev;
                 PqNode* after = current->next;
 
-                before->next = after;
+                if (before != NULL) {
+                    before->next = after;
+                } else {
+                    pq->head = after;   // current was head
+                }
+
+                if (after != NULL) {
+                    after->prev = before;
+                }
+
 
                 pq->tail->next = current;
                 pq->tail = current;
@@ -67,6 +87,24 @@ long pqAccess(PageQueue *pq, unsigned long pageNum) {
         newNode->pageNum = pageNum;
         newNode->prev = pq->tail;
         newNode->next = NULL;
+
+        //pq is null        
+        if (pq->tail == NULL) {
+            pq->head = pq->tail = newNode;
+        }
+        else{
+            pq->tail->next = newNode;
+            pq->tail = newNode;
+        }
+        pq->size++;
+
+        if(pq->size > pq->maxSize){
+            PqNode* oldHead = pq->head;
+            pq->head->next->prev = NULL;
+            pq->head = pq->head->next;
+
+            free(oldHead);
+        }
 
         pq->tail = newNode;
             
