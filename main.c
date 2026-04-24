@@ -6,7 +6,7 @@
  * Purpose: Reads a BYU binary memory trace file and simulates
  *          LRU page replacement to measure fault rates across
  *          varying frame allocations.
- * Documentation: TBD
+ * Documentation: No help received
  * =========================================================== */
 #include <stdio.h>
 #include <stdlib.h>
